@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Person",
+  "description": "A generic person record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "firstName", "lastName", "email"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier"
+    },
+    "firstName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "lastName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "email": {
+      "type": "string",
+      "format": "email"
+    },
+    "phone": {
+      "type": ["string", "null"],
+      "pattern": "^\\+?[0-9 .\\-()]{7,20}$"
+    },
+    "dateOfBirth": {
+      "type": "string",
+      "format": "date"
+    },
+    "address": {
+      "$ref": "#/definitions/Address"
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["admin", "user", "viewer", "manager"]
+      },
+      "uniqueItems": true
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "definitions": {
+    "Address": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["street", "city", "country"],
+      "properties": {
+        "street": { "type": "string" },
+        "street2": { "type": ["string", "null"] },
+        "city": { "type": "string" },
+        "state": { "type": ["string", "null"] },
+        "postalCode": { "type": "string" },
+        "country": { "type": "string", "minLength": 2, "maxLength": 2 }
+      }
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Product",
+  "description": "A generic product catalog entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "sku", "price"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "sku": {
+      "type": "string",
+      "pattern": "^[A-Z0-9\\-]{3,20}$",
+      "description": "Stock-keeping unit code"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": ["string", "null"]
+    },
+    "category": {
+      "type": "string",
+      "enum": ["electronics", "clothing", "food", "furniture", "books", "other"]
+    },
+    "price": {
+      "$ref": "#/definitions/Money"
+    },
+    "discountPrice": {
+      "$ref": "#/definitions/Money"
+    },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["quantity"],
+      "properties": {
+        "quantity": { "type": "integer", "minimum": 0 },
+        "reserved": { "type": "integer", "minimum": 0, "default": 0 },
+        "warehouse": { "type": ["string", "null"] }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "available": {
+      "type": "boolean",
+      "default": true
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "definitions": {
+    "Money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": {
+          "type": "number",
+          "minimum": 0,
+          "multipleOf": 0.01
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 3,
+          "description": "ISO 4217 currency code"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["relationshipId", "asnHeader", "stops"],
+  "additionalProperties": false,
+
+  "properties": {
+    "relationshipId": {
+      "type": "string",
+      "format": "uuid"
+    },
+
+    "asnHeader": {
+      "$ref": "#/definitions/ASNHeader"
+    },
+
+    "stops": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Stop" }
+    },
+
+    "summary": {
+      "$ref": "#/definitions/Summary"
+    }
+  },
+
+  "definitions": {
+    "HLBase": {
+      "type": "object",
+      "properties": {
+        "hlId": { "type": "string" },
+        "hlParentId": { "type": "string" },
+        "hlLevelCode": { "type": "string" }
+      },
+      "required": ["hlId", "hlParentId", "hlLevelCode"]
+    },
+
+    "Measure": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "type": "string" }
+      },
+      "required": ["value", "unit"],
+      "additionalProperties": false
+    },
+
+    "Address": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "address1": { "type": "string" },
+        "address2": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "postalCode": { "type": "string" },
+        "country": { "type": "string" },
+        "locationNumber": { "type": [ "string", "null" ] },
+        "storeNumber": { "type": [ "string", "null" ] } 
+      },
+      "additionalProperties": false
+    },
+
+    "ASNHeader": {
+      "type": "object",
+      "required": ["shipmentDate", "shipNoticeNumber", "purposeCode"],
+      "additionalProperties": false,
+      "properties": {
+        "shipNoticeNumber": { "type": "string" },
+        "purposeCode": { "type": "string" },
+        "shipmentIdentification": { "type": "string" },
+        "shipmentDate": { "type": "string", "maxLength": 8 },
+        "shipmentTime": { "type": "string" },
+        "hierarchicalStructureCode": { "type": "string" },
+
+        "carrier": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "scac": { "type": "string" },
+            "carrierName": { "type": "string" },
+            "proNumber": { "type": "string" }
+          }
+        },
+
+        "shipFrom": {
+          "$ref": "#/definitions/Address"
+        },
+
+        "totals": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "totalWeight": { "$ref": "#/definitions/Measure" },
+            "totalVolume": { "$ref": "#/definitions/Measure" },
+            "totalPackages": { "type": "integer" }
+          }
+        },
+
+        "notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+
+    "Stop": {
+      "allOf": [
+        { "$ref": "#/definitions/HLBase" },
+        {
+          "properties": {
+            "hlLevelCode": { "enum": ["S"] },
+            "stopId": { "type": "string" },
+            "stopType": { "type": "string" },
+            "shipTo": { "$ref": "#/definitions/Address" },
+            "orders": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/Order" }
+            }
+          }
+        }
+      ]
+    },
+
+    "Order": {
+      "allOf": [
+        { "$ref": "#/definitions/HLBase" },
+        {
+          "properties": {
+            "hlLevelCode": { "enum": ["O"] },
+            "orderNumber": { "type": "string" },
+            "orderDate": { "type": "string", "maxLength": 8 },
+            "departmentNumber": { "type": "string" },
+            "tares": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/Tare" }
+            }
+          },
+          "required": ["orderNumber", "orderDate"]
+        }
+      ]
+    },
+
+    "Tare": {
+      "allOf": [
+        { "$ref": "#/definitions/HLBase" },
+        {
+          "properties": {
+            "hlLevelCode": { "enum": ["T"] },
+            "tareId": { "type": "string" },
+            "sscc": { "type": "string" },
+            "weight": { "$ref": "#/definitions/Measure" },
+            "packs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/Pack" }
+            }
+          }
+        }
+      ]
+    },
+
+    "Pack": {
+      "allOf": [
+        { "$ref": "#/definitions/HLBase" },
+        {
+          "properties": {
+            "hlLevelCode": { "enum": ["P"] },
+            "packId": { "type": "string" },
+            "sscc": { "type": "string" },
+            "trackingNumbers": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "items": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/Item" }
+            }
+          }
+        }
+      ]
+    },
+
+    "Item": {
+      "allOf": [
+        { "$ref": "#/definitions/HLBase" },
+        {
+          "properties": {
+            "hlLevelCode": { "enum": ["I"] },
+            "lineNumber": { "type": "string" },
+            "buyerItemNumber": { "type": "string" },
+            "vendorItemNumber": { "type": "string" },
+            "upc": { "type": "string" },
+            "gtin": { "type": "string" },
+            "description": { "type": "string" },
+            "shippedQuantity": { "type": "integer" },
+            "unitOfMeasure": { "type": "string" },
+            "lotNumber": { "type": "string" },
+            "expirationDate": { "type": "string" }
+          }
+        }
+      ]
+    },
+
+    "Summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "totalStops": { "type": "integer" },
+        "totalOrders": { "type": "integer" },
+        "totalTares": { "type": "integer" },
+        "totalPacks": { "type": "integer" },
+        "totalItems": { "type": "integer" },
+        "totalQuantity": { "type": "integer" }
+      }
+    }
+  }
+}
